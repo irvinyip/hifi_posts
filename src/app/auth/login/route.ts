@@ -11,7 +11,9 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}/auth/callback`
+          : `${origin}/auth/callback`,
       },
     })
 
