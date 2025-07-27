@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { Provider } from '@supabase/supabase-js'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
 
   if (provider) {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
+      provider: provider as Provider,
       options: {
         redirectTo: `${origin}/auth/callback`,
       },

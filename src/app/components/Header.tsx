@@ -12,11 +12,13 @@ export default function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    checkUser();
   }, []);
 
   useEffect(() => {

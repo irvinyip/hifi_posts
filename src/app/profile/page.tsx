@@ -1,13 +1,19 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client';
+import { User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Header from '../components/Header';
 
+interface Profile {
+  full_name: string;
+  avatar_url: string;
+}
+
 export default function Profile() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -31,7 +37,7 @@ export default function Profile() {
       if (error && error.code !== 'PGRST116') { // PGRST116: no rows found
         console.error('Error fetching profile:', error);
       } else if (data) {
-        setProfile(data);
+
         setFullName(data.full_name || '');
         setAvatarUrl(data.avatar_url || '');
       }
@@ -39,10 +45,11 @@ export default function Profile() {
     };
 
     fetchUserAndProfile();
-  }, []);
+  }, [supabase]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setLoading(true);
     const { error } = await supabase.from('profiles').upsert({
       id: user.id,
