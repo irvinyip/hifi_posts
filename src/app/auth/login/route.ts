@@ -1,19 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { Provider } from '@supabase/supabase-js'
+import { headers } from 'next/headers'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const provider = searchParams.get('provider')
   const supabase = createClient()
+
+  const headersList = headers()
+  const host = headersList.get('host')
+  const protocol = headersList.get('x-forwarded-proto') ?? 'http'
+  const origin = `${protocol}://${host}`
+  const redirectTo = `${origin}/auth/callback`
 
   if (provider) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as Provider,
       options: {
-        redirectTo: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/auth/callback`
-          : `${origin}/auth/callback`,
+        redirectTo,
       },
     })
 
