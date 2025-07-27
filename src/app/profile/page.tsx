@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { redirect, useRouter } from 'next/navigation';
-import Header from '../components/Header';
 
 interface Profile {
   full_name: string;
@@ -74,7 +73,6 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Header />
       <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="bg-white p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-6">Your Profile</h2>
