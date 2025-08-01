@@ -1,13 +1,10 @@
 'use client'
-
+import PostItem from './PostItem';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
-import CreateComment from './CreateComment';
-import CommentList from './CommentList';
-import MediaPreview from './MediaPreview';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface Post {
-  id: number;
+  id: string;
   content: string;
   created_at: string;
   user_id: string;
@@ -16,47 +13,73 @@ interface Post {
   username: string | null;
   full_name: string | null;
   email: string | null;
+  media: MediaItem[];
 }
 
 export default function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const supabase = createClient();
+  const observer = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const loadPosts = useCallback(async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    const { data, error } = await supabase.rpc('get_posts_with_author', { p_limit: 5, p_offset: offset });
+
+    if (error) {
+      console.error('Error fetching posts:', error);
+      setLoading(false);
+      return;
+    }
+
+    if (data) {
+      console.log('Fetched posts data:', data);
+      setPosts((prevPosts) => {
+        const newPosts = data.filter((newPost) => !prevPosts.some((p) => p.id === newPost.id));
+        setOffset((prevOffset) => prevOffset + newPosts.length);
+        setHasMore(newPosts.length === 5);
+        return [...prevPosts, ...newPosts];
+      });
+    }
+    setLoading(false);
+  }, [loading, hasMore, offset, supabase]);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data, error } = await supabase.rpc('get_posts_with_author');
+    loadPosts();
+  }, []);
 
-      if (data) {
-        console.log('Fetched posts data:', data);
-        setPosts(data);
+  useEffect(() => {
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !loading) {
+        loadPosts();
       }
-      if (error) {
-        console.error('Error fetching posts:', error);
-      }
+    });
+
+    if (loadMoreRef.current) {
+      observer.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observer.current) observer.current.disconnect();
     };
-
-    fetchPosts();
-  }, [supabase]);
-
-
+  }, [hasMore, loading, loadPosts]);
 
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <div key={post.id} className="bg-white p-4 rounded-lg shadow-md">
-          {post.photo_url && <MediaPreview url={post.photo_url} contentType={post.photo_content_type} />}
-
-          <p className="text-stone-950">{post.content}</p>
-          <div className="text-sm text-stone-400 mt-2">
-            <span>Posted by {post.full_name || post.username || post.email} on {new Date(post.created_at).toLocaleString()}</span>
-          </div>
-          <div className="mt-4">
-            <CommentList post_id={post.id} />
-            <CreateComment post_id={post.id} />
-          </div>
-        </div>
+        <PostItem key={post.id} post={post} />
       ))}
+      <div ref={loadMoreRef}>
+        {loading && <p>Loading more posts...</p>}
+        {!hasMore && <p>No more posts to load.</p>}
+      </div>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export default function MediaPreview({ url, contentType: initialContentType }: M
   }
 
   if (mediaType.startsWith('image/')) {
-    return <img src={url} alt="Post media" className="rounded-md mb-4 max-h-96 w-full object-cover" />;
+    return <img src={url} alt="Post media" className="rounded-md mb-4 max-h-96 w-full object-contain" />;
   }
 
   if (mediaType.startsWith('audio/')) {
