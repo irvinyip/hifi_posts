@@ -6,14 +6,14 @@ import CommentList from './CommentList';
 import CreateComment from './CreateComment';
 import ImageModal from './ImageModal';
 
-interface MediaItem {
+export interface MediaItem {
   url: string;
   type: string;
   name: string;
 }
 
 interface Post {
-  id: number;
+  id: string;
   content: string;
   created_at: string;
   user_id: string;

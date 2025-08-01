@@ -1,5 +1,5 @@
 'use client'
-import PostItem from './PostItem';
+import PostItem, { MediaItem } from './PostItem';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 
@@ -40,7 +40,7 @@ export default function PostList() {
     if (data) {
       console.log('Fetched posts data:', data);
       setPosts((prevPosts) => {
-        const newPosts = data.filter((newPost) => !prevPosts.some((p) => p.id === newPost.id));
+        const newPosts = data.filter((newPost: Post) => !prevPosts.some((p) => p.id === newPost.id));
         setOffset((prevOffset) => prevOffset + newPosts.length);
         setHasMore(newPosts.length === 5);
         return [...prevPosts, ...newPosts];

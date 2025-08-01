@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { FormEvent, useState } from 'react';
 
-export default function CreateComment({ post_id }: { post_id: number }) {
+export default function CreateComment({ post_id }: { post_id: string }) {
   const supabase = createClient();
   const [comment, setComment] = useState('');
 

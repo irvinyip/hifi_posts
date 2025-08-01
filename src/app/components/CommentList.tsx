@@ -13,7 +13,7 @@ interface Comment {
   email: string | null;
 }
 
-export default function CommentList({ post_id }: { post_id: number }) {
+export default function CommentList({ post_id }: { post_id: string }) {
   const supabase = createClient();
   const [comments, setComments] = useState<Comment[]>([]);
   const [visibleComments, setVisibleComments] = useState(3);
