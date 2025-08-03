@@ -1,15 +1,30 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
+import { useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (!error && data.session) {
+          router.push('/')
+        }
+      })
+    }
+  }, [searchParams, router])
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
   }
@@ -18,7 +33,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'azure',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
   }
