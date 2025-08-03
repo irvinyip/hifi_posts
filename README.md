@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## v0.3
+- add like function
+- add about page
+- add markdown support in post
+
 ## v0.2
 - Add image modal for previewing images
 - Add multi photo and audio files, max 5 per post
