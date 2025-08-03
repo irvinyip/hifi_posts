@@ -3,8 +3,9 @@
 import { createClient } from '@/lib/supabase/client'
 import { useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function LoginContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -58,5 +59,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
